@@ -13,6 +13,15 @@ Perfect for token-heavy work: building features, multi-file changes, research, t
 - **Key docs:** [README](./skills/frugal-fable/README.md) · [Full Guide](./skills/frugal-fable/SKILL.md)
 - **References:** [Fan-out Template](./skills/frugal-fable/references/fanout-template.js) · [Routing Cheatsheet](./skills/frugal-fable/references/routing-cheatsheet.md)
 
+### [cc-token-audit](./skills/cc-token-audit)
+
+Audit your real Claude Code token usage, find where your costs actually go, and validate cost-saving recommendations with a passive A/B test on real work.
+
+Runs on deterministic local tools with **$0 cost** — no API calls. Ground-truth spend via `ccusage`, excludes headless replays by default, and matches recommendations to your actual cost structure.
+
+- **Quick start:** [README](./skills/cc-token-audit/README.md) · [Full Guide](./skills/cc-token-audit/SKILL.md)
+- **Scripts:** [baseline.py](./skills/cc-token-audit/scripts/) — Phase 1+2 baseline + tool-fit analysis
+
 ---
 
 ## Using These Skills
