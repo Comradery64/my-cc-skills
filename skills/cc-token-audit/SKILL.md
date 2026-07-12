@@ -48,6 +48,14 @@ dominant cost bucket, and validate it with a **passive** A/B on their real work.
      replaces dozens of grep/Read cycles — its bench shows ~99% fewer tokens on
      structural queries). Attacks the same bucket from the *input* side, so it
      **pairs** with context-mode rather than replacing it.
+   - **runs Claude Code at HIGH or XHIGH reasoning effort often** → flag **codebase-memory-mcp**
+     regardless of the cost-bucket numbers. Neither ccusage nor the session transcripts log
+     effort level (checked: no such field exists), so this can't be detected automatically —
+     it's a static tip, not a data-driven recommendation. Ask the person directly, or just
+     surface it: that effort level explores via many grep/Read tool calls, and
+     codebase-memory-mcp replaces dozens of those round-trips with one graph query instead of
+     compressing/redirecting after the fact. `baseline.py` prints this tip unconditionally
+     (unless already installed) since it can't verify effort level itself.
    - **context/cache dominates AND read-only recall isn't enough** → **cozempic**
      (active pruning — 18 strategies trim stale reads, old tool results by age,
      thinking blocks, duplicate reminders, >8KB tool outputs; a 4-tier auto-guard

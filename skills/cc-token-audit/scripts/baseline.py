@@ -243,5 +243,13 @@ def main():
         print(f"        not adoption. Use ctx_*/codebase-memory-mcp deliberately; re-run in ~2 weeks to trend cache_read.")
     print()
 
+    if not have.get("codebase-memory-mcp"):
+        print(f"  Tip: if you often run Claude Code at HIGH or XHIGH reasoning effort, install")
+        print(f"  codebase-memory-mcp regardless of the bucket numbers above — that effort level")
+        print(f"  explores via many grep/Read tool calls, and codebase-memory-mcp replaces dozens")
+        print(f"  of those round-trips with one graph query. (ccusage/the transcripts don't log")
+        print(f"  effort level, so this can't be measured automatically — it's a judgment call.)")
+        print()
+
 if __name__ == "__main__":
     main()
