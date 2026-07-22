@@ -5,3 +5,10 @@ node_modules/
 .env
 .env.local
 .claude/settings.local.json
+
+# Internal/working docs — not for the public repo
+CLAUDE.md
+PLAN.md
+NOTES.md
+memory/
+.claude/memory/
