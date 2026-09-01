@@ -198,6 +198,26 @@ context*. So don't return it there.
 
 This keeps Fable's working set small even across dozens of subagents.
 
+## Planning tasks: the routing plan IS part of the deliverable
+
+When the task itself is to *plan* multi-phase work (a project plan, roadmap,
+phased build-out), the routing this skill produces at runtime — per-slice
+owner model, effort floor, parallel/series schedule, verification gate,
+escalation triggers, and pre-flagged ▲ upward overrides for steep-curve
+slices — must be **written into the deliverable** (an `ORCHESTRATION.md`
+next to the plan, or a routing section per phase), not just applied silently
+in-session. Two reasons: the next session inherits priors instead of
+re-deriving them, and the user can audit the spend plan before it runs.
+
+Also: if reconnaissance shows the project family already keeps orchestration
+docs as repo artifacts, that is a convention to follow, not optional color —
+"how the team worked" docs are in scope for a planning deliverable.
+
+*Origin (2026-08-31, BeatSaber98):* the skill was applied correctly at
+runtime but the shipped plan had no routing map; the user had to ask for it
+separately, even though all three sibling repos carried ORCHESTRATION docs
+the recon had surfaced.
+
 ## Handoff packets
 
 Write every delegated prompt as if the agent has zero chat context. Include only:
