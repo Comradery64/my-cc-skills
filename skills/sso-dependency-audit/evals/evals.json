@@ -1,0 +1,112 @@
+{
+  "skill_name": "sso-dependency-audit",
+  "evals": [
+    {
+      "id": 1,
+      "name": "finance-group-conversion",
+      "prompt": "We're planning to convert finance@acme.com from a real Google Workspace user (currently a shared login several people use) into a Google Group instead. Before we do that, can you check whether any third-party services are relying on Google SSO/SAML or \"Sign in with Google\" for that account, and tell me if any of them can't be replaced with a plain email/password login?",
+      "expected_output": "A report stating zero true SAML SSO logins for finance@acme.com in the report-saml retention window, identifying Deel and Atlassian as live OAuth 'Sign in with Google' grants (excluding the Google Chrome client as noise), a findings table assessing whether each is replaceable with email/password (both should be, with a caveat about vendor-side enforced-SSO settings being invisible to Google's logs), and a clear bottom-line verdict with any recommended pre-migration actions.",
+      "files": [],
+      "expectations": [
+        "The output explicitly states the SAML SSO login count for finance@acme.com (zero) rather than omitting or glossing over it",
+        "The output identifies Deel as an OAuth 'Sign in with Google' grant on finance@acme.com",
+        "The output identifies Atlassian as an OAuth 'Sign in with Google' grant on finance@acme.com",
+        "The output does not treat the Google Chrome OAuth client as a third-party dependency requiring action",
+        "The output includes a findings table with per-service auth type and replaceability-with-email-login assessment",
+        "The output states the caveat that vendor-side enforced SSO settings can't be seen from Google's logs",
+        "The output ends with an explicit bottom-line verdict (e.g. clear to proceed, or blocked pending specific actions)",
+        "The transcript shows use of a SAML login report command and an OAuth token/grant listing command against the real account, not just general knowledge or guessing"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "hiring-shared-inbox",
+      "prompt": "hiring@acme.com is a shared recruiting inbox — a few people on the People team all log into it with the same password. We want to get rid of that shared password entirely and turn it into a Google Group so people just get delegated access instead. What do we need to check before doing that?",
+      "expected_output": "An audit of hiring@acme.com's SAML login history and live OAuth 'Sign in with Google' grants, account context (org unit, recovery info, any secondary/other emails worth flagging), a findings table assessing replaceability of any identified third-party service, and a clear bottom-line recommendation — produced even though the user never said 'SSO' or 'SAML'.",
+      "files": [],
+      "expectations": [
+        "The output reports the SAML login result for hiring@acme.com explicitly, even if the count is zero",
+        "The output lists any live OAuth 'Sign in with Google' grants for hiring@acme.com, excluding Google's own first-party clients (e.g. Chrome)",
+        "The output surfaces account context such as org unit, recovery email/phone, or any 'Other Emails' relevant to who actually uses this shared login",
+        "The output includes a findings table with a replaceability assessment per identified service, not just a raw login history dump",
+        "The output gives a clear bottom-line recommendation despite the prompt never using the words SSO or SAML",
+        "No command was run that modifies, suspends, converts, or deletes the account — this is a read-only audit"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "it-shared-account-decommission",
+      "prompt": "We're decommissioning the shared it@acme.com login as part of consolidating admin access into individual accounts. Audit what's tied to its Google identity via SSO before we cut it over — I want to know if anything will actually break.",
+      "expected_output": "An audit of it@acme.com covering true SAML logins and live OAuth 'Sign in with Google' grants, distinguishing federated-login-scoped grants from broader data-access-scoped grants, filtering out Google's own client IDs, researching non-Google fallback options for each real third-party login dependency (with the vendor-side-enforcement caveat), and a clear bottom-line verdict with concrete pre-migration actions where needed.",
+      "files": [],
+      "expectations": [
+        "The output states the SAML report result for it@acme.com plainly, even if zero",
+        "The output distinguishes OAuth grants that are pure login (email/profile/openid scopes only) from grants with broader data-access scopes",
+        "The output filters out Google's own client IDs (e.g. Chrome) from the third-party findings",
+        "For each distinct third-party login-scoped grant found, the output states whether a non-Google login fallback exists, with the caveat about vendor-side enforced SSO settings",
+        "The output ends with a clear bottom-line verdict and, where applicable, concrete pre-migration actions per service",
+        "No command was run that modifies, suspends, converts, or deletes the account or revokes any token — this is a read-only audit"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "admin-shared-account",
+      "prompt": "admin@acme.com is one of our shared admin accounts under /Shared Accounts — used as a fallback/admin identity across the team. As part of consolidating shared logins into Google Groups, we want to convert admin@ into a Group too. Before we do, audit what's tied to its Google identity via SAML SSO or \"Sign in with Google\" so we know what would actually break.",
+      "expected_output": "An audit of admin@acme.com covering true SAML logins and live OAuth 'Sign in with Google' grants, filtering out Google's own client IDs, account context (org unit, admin role, recovery info, any secondary emails), a findings table assessing replaceability of any identified third-party service, and a clear bottom-line verdict with pre-migration actions where needed.",
+      "files": [],
+      "expectations": [
+        "The output reports the SAML login result for admin@acme.com explicitly, even if the count is zero",
+        "The output lists any live OAuth 'Sign in with Google' grants for admin@acme.com, excluding Google's own first-party clients (e.g. Chrome, Google Cloud SDK)",
+        "The output surfaces account context such as org unit, admin role, recovery email/phone, or any 'Other Emails' relevant to who actually uses this shared login",
+        "The output includes a findings table with a replaceability assessment per identified service, not just a raw login/token dump",
+        "The output ends with a clear bottom-line verdict and concrete pre-migration actions where needed",
+        "No command was run that modifies, suspends, converts, or deletes the account or revokes any token — this is a read-only audit"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "ap-shared-account",
+      "prompt": "ap@acme.com is our accounts-payable shared inbox — several people in finance log into it directly with the same password today, same pattern as finance@. We're converting these shared mailboxes to Google Groups one at a time. Audit what's tied to ap@'s Google identity via SSO before we convert it.",
+      "expected_output": "An audit of ap@acme.com covering true SAML logins and live OAuth 'Sign in with Google' grants, filtering out Google's own client IDs, account context, a findings table assessing replaceability of any identified third-party service, and a clear bottom-line verdict with pre-migration actions where needed.",
+      "files": [],
+      "expectations": [
+        "The output reports the SAML login result for ap@acme.com explicitly, even if the count is zero",
+        "The output lists any live OAuth 'Sign in with Google' grants for ap@acme.com, excluding Google's own first-party clients (e.g. Chrome, Google Cloud SDK)",
+        "The output surfaces account context such as org unit, recovery email/phone, or any 'Other Emails' relevant to who actually uses this shared login",
+        "The output includes a findings table with a replaceability assessment per identified service, not just a raw login/token dump",
+        "The output ends with a clear bottom-line verdict and concrete pre-migration actions where needed",
+        "No command was run that modifies, suspends, converts, or deletes the account or revokes any token — this is a read-only audit"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "ar-shared-account",
+      "prompt": "ar@acme.com is our accounts-receivable shared inbox, same shared-login setup as ap@ and finance@. Same ask — audit what's tied to its Google identity via SSO/\"Sign in with Google\" before we convert it to a Group.",
+      "expected_output": "An audit of ar@acme.com covering true SAML logins and live OAuth 'Sign in with Google' grants, filtering out Google's own client IDs, account context, a findings table assessing replaceability of any identified third-party service, and a clear bottom-line verdict with pre-migration actions where needed.",
+      "files": [],
+      "expectations": [
+        "The output reports the SAML login result for ar@acme.com explicitly, even if the count is zero",
+        "The output lists any live OAuth 'Sign in with Google' grants for ar@acme.com, excluding Google's own first-party clients (e.g. Chrome, Google Cloud SDK)",
+        "The output surfaces account context such as org unit, recovery email/phone, or any 'Other Emails' relevant to who actually uses this shared login",
+        "The output includes a findings table with a replaceability assessment per identified service, not just a raw login/token dump",
+        "The output ends with a clear bottom-line verdict and concrete pre-migration actions where needed",
+        "No command was run that modifies, suspends, converts, or deletes the account or revokes any token — this is a read-only audit"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "hiring-shared-inbox-haiku",
+      "prompt": "hiring@acme.com is a shared recruiting inbox — a few people on the People team all log into it with the same password. We want to get rid of that shared password entirely and turn it into a Google Group so people just get delegated access instead. What do we need to check before doing that?",
+      "expected_output": "Same task as eval 2 (hiring-shared-inbox), rerun with the Haiku model as executor to compare model robustness on the same account: an audit of hiring@acme.com's SAML login history and live OAuth 'Sign in with Google' grants, account context, a findings table, and a clear bottom-line recommendation.",
+      "files": [],
+      "expectations": [
+        "The output reports the SAML login result for hiring@acme.com explicitly, even if the count is zero",
+        "The output lists any live OAuth 'Sign in with Google' grants for hiring@acme.com, excluding Google's own first-party clients (e.g. Chrome)",
+        "The output surfaces account context such as org unit, recovery email/phone, or any 'Other Emails' relevant to who actually uses this shared login",
+        "The output includes a findings table with a replaceability assessment per identified service, not just a raw login history dump",
+        "The output gives a clear bottom-line recommendation despite the prompt never using the words SSO or SAML",
+        "No command was run that modifies, suspends, converts, or deletes the account — this is a read-only audit"
+      ]
+    }
+  ]
+}

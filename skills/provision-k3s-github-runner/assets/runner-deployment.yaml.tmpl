@@ -1,0 +1,105 @@
+# Template — replace __PLACEHOLDERS__ before applying:
+#   __NAMESPACE__   e.g. ci-runners
+#   __RUNNER_NAME__ e.g. myproject-k3s-runner   (also the Deployment/PVC/app-label base)
+#   __RUNNER_LABEL__ e.g. linux-x64-k3s-docker-build   (the runs-on label; keep it UNIQUE per project)
+#   __REPO_URL__    e.g. https://github.com/OWNER/REPO
+#   __IMAGE__       e.g. 10.88.10.241:5000/ci-runners/myproject-k3s-runner:latest
+#   __STORAGE_CLASS__ e.g. longhorn   (a network/replicated class so state survives reschedule)
+#   __PVC_SIZE__    e.g. 10Gi
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: __RUNNER_NAME__-state
+  namespace: __NAMESPACE__
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: __STORAGE_CLASS__
+  resources:
+    requests:
+      storage: __PVC_SIZE__
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: __RUNNER_NAME__
+  namespace: __NAMESPACE__
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate            # single ReadWriteOnce PVC — never two pods at once
+  selector:
+    matchLabels:
+      app: __RUNNER_NAME__
+  template:
+    metadata:
+      labels:
+        app: __RUNNER_NAME__
+    spec:
+      automountServiceAccountToken: false
+      initContainers:
+        # Seed the persistent volume with the runner binaries on first boot. After
+        # that the PVC also holds .runner/.credentials, so the runner
+        # re-authenticates across restarts with no registration token.
+        - name: seed-runner
+          image: __IMAGE__
+          securityContext:
+            runAsUser: 0
+          command: ["bash", "-c"]
+          args:
+            - |
+              set -e
+              if [ ! -f /mnt/runner/config.sh ]; then
+                echo "Seeding runner directory onto persistent volume..."
+                cp -a /home/runner/. /mnt/runner/
+                chown -R 1001:1001 /mnt/runner
+              else
+                echo "Persistent volume already seeded."
+              fi
+          volumeMounts:
+            - name: runner-state
+              mountPath: /mnt/runner
+      containers:
+        # Privileged docker-in-docker sidecar. privileged:true is scoped to THIS
+        # container's own nested daemon only — do NOT mount the host docker.sock.
+        - name: dind
+          image: docker:27-dind
+          securityContext:
+            privileged: true
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          volumeMounts:
+            - name: docker-storage
+              mountPath: /var/lib/docker
+          resources:
+            requests: { cpu: "1", memory: 2Gi }
+            limits: { cpu: "4", memory: 8Gi }
+        - name: runner
+          image: __IMAGE__
+          env:
+            - name: REPO_URL
+              value: __REPO_URL__
+            - name: RUNNER_LABELS
+              value: __RUNNER_LABEL__
+            - name: RUNNER_NAME
+              value: __RUNNER_NAME__
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
+            - name: REG_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: __RUNNER_NAME__-regtoken
+                  key: token
+                  optional: true          # absent after first-boot registration; PVC has creds
+          volumeMounts:
+            - name: runner-state
+              mountPath: /home/runner
+          resources:
+            requests: { cpu: "500m", memory: 1Gi }
+            limits: { cpu: "2", memory: 4Gi }
+      volumes:
+        - name: docker-storage
+          emptyDir: {}
+        - name: runner-state
+          persistentVolumeClaim:
+            claimName: __RUNNER_NAME__-state
