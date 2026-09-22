@@ -111,6 +111,13 @@ A CLI tool for managing on-disk Claude Code task lists outside of the built-in t
 
 - **Full Guide:** [SKILL.md](./skills/task-manager/SKILL.md)
 
+### [soc2](./skills/soc2)
+
+Reviews a project, PR, branch, diff, or the current session for SOC 2 Type 2 compliance — checks Trust Service Criteria (access, change management, availability, confidentiality, processing integrity) and reports findings by severity with concrete fixes. Includes an extended checklist section for AI-inference and GPU-control-plane workloads. Supersedes the older `/soc2` command below with a fuller control checklist and report rubric.
+
+- **Quick start:** [README](./skills/soc2/README.md) · [Full Guide](./skills/soc2/SKILL.md)
+- **References:** [controls.md](./skills/soc2/references/controls.md)
+
 ---
 
 ## Available Commands
