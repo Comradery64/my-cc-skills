@@ -121,6 +121,11 @@ Four properties worth knowing:
 - `core.hooksPath` **replaces** `.git/hooks` for every repository. The guard
   chains to a repository-local `pre-push` so that one keeps working; any other
   local hook type would stop running.
+- The installer **copies** the hook to `~/.config/git/hooks`. Pointing
+  `core.hooksPath` at a project directory fails open: move or rename the
+  project, or leave an external volume unmounted, and git finds no hooks and
+  runs none without saying so. Re-run the installer after editing the hook; the
+  installed copy records the commit it came from.
 - Overrides are deliberate and visible: `git push --no-verify` for one push,
   `git config guard.disable true` for one repository.
 - Run `test-guard.sh` after any change to it. A guard nobody has watched fail is
