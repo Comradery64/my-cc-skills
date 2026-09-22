@@ -103,6 +103,29 @@ git diff --cached --name-only | grep -E '(^|/)(LOCAL\.md|.*\.local\.md)$' && ech
 git grep -n "/Users/" -- . ':!*.local.md' ':!LOCAL.md'
 ```
 
+## The push guard
+
+`hooks/pre-push` refuses a push that adds a `/Users/<name>/` path, a
+`<!-- local:start -->` fence, or a tracked `LOCAL.md` / `*.local.md`. Install it
+once for the whole machine:
+
+```bash
+sh hooks/install.sh          # sets core.hooksPath globally
+sh hooks/test-guard.sh       # 5 controls: 3 blocks, 1 clean push, 1 opt-out
+```
+
+Four properties worth knowing:
+
+- It scans **only the lines a push adds**, so adopting it on an old repository
+  never requires cleaning history first.
+- `core.hooksPath` **replaces** `.git/hooks` for every repository. The guard
+  chains to a repository-local `pre-push` so that one keeps working; any other
+  local hook type would stop running.
+- Overrides are deliberate and visible: `git push --no-verify` for one push,
+  `git config guard.disable true` for one repository.
+- Run `test-guard.sh` after any change to it. A guard nobody has watched fail is
+  not a guard, which is the same rule this collection applies to gate oracles.
+
 ## Forks of other people's repositories
 
 A fork is public and carries someone else's name in its history. Personal tool

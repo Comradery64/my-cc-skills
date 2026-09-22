@@ -1,0 +1,85 @@
+#!/bin/sh
+# pre-push : refuse to publish machine-specific content.
+#
+# Installed globally via core.hooksPath, so it covers every repository on this
+# machine, including ones cloned later. See ../CONVENTIONS.md.
+#
+# It scans only the lines this push ADDS. Pre-existing content never blocks a
+# push, so adopting the guard on an old repository does not require cleaning
+# history first.
+#
+# What it catches: path-shaped and marker-shaped leaks. What it cannot catch:
+# a paragraph that reveals something confidential without naming a path. Keep
+# genuinely confidential work in a private repository; this is a backstop for
+# accidents, not a substitute for that decision.
+#
+# Bypass is deliberate and recorded:
+#   git push --no-verify              one push, no guard
+#   git config guard.disable true     this repository, no guard
+
+set -eu
+
+REMOTE_NAME="${1:-origin}"
+ZERO=0000000000000000000000000000000000000000
+
+[ "$(git config --bool guard.disable 2>/dev/null || echo false)" = "true" ] && exit 0
+
+# stdin is readable once, and a repository-local hook still deserves it.
+STDIN_COPY=$(mktemp)
+trap 'rm -f "$STDIN_COPY"' EXIT
+cat > "$STDIN_COPY"
+
+# Overlay files must never be tracked at all.
+NAME_PATTERN='(^|/)(LOCAL\.md|[^/]*\.local\.md)$'
+# Content that must never appear in an added line.
+CONTENT_PATTERN='(/Users/[A-Za-z0-9._-]+/|<!--[[:space:]]*local:start)'
+
+findings=""
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ "$local_sha" = "$ZERO" ] && continue          # branch deletion
+
+  if [ "$remote_sha" = "$ZERO" ]; then            # new branch: bound by what the remote already has
+    base=$(git rev-list --max-parents=0 "$local_sha" 2>/dev/null | tail -1)
+    range=$(git rev-list "$local_sha" --not --remotes="$REMOTE_NAME" 2>/dev/null | tail -1)
+    [ -n "$range" ] && base="${range}^" || base="$base"
+    git rev-parse --verify --quiet "$base" >/dev/null 2>&1 || base=$(git hash-object -t tree /dev/null)
+  else
+    base="$remote_sha"
+  fi
+
+  # 1. an overlay committed by name, whatever its contents
+  names=$(git diff --name-only "$base" "$local_sha" 2>/dev/null \
+    | grep -E "$NAME_PATTERN" || true)
+  for name in $names; do
+    findings="${findings}  tracked overlay file: ${name}
+"
+  done
+
+  # 2. machine-specific content in an added line. Skip the +++ header lines so a
+  #    filename is never mistaken for content.
+  hits=$(git diff --no-color "$base" "$local_sha" 2>/dev/null \
+    | grep -E '^\+' \
+    | grep -vE '^\+\+\+ ' \
+    | grep -E "$CONTENT_PATTERN" \
+    | cut -c1-160 || true)
+  [ -n "$hits" ] && findings="${findings}${hits}
+"
+done < "$STDIN_COPY"
+
+if [ -n "$(printf '%s' "$findings" | tr -d '[:space:]')" ]; then
+  echo "BLOCKED: this push adds machine-specific content." >&2
+  echo "" >&2
+  printf '%s' "$findings" | head -20 >&2
+  echo "" >&2
+  echo "Move it to LOCAL.md (gitignored) and leave the tracked file generic." >&2
+  echo "See CONVENTIONS.md. Deliberate override: git push --no-verify" >&2
+  exit 1
+fi
+
+# A global hooksPath replaces .git/hooks, so chain rather than silently disable.
+LOCAL_HOOK="$(git rev-parse --git-path hooks/pre-push)"
+if [ -x "$LOCAL_HOOK" ]; then
+  "$LOCAL_HOOK" "$@" < "$STDIN_COPY"
+fi
+
+exit 0
