@@ -6,6 +6,12 @@ node_modules/
 .env.local
 .claude/settings.local.json
 
+# Local overlays: machine-specific detail that must never be published.
+# A tracked file may point at one, but must stand alone without it.
+# See CONVENTIONS.md.
+LOCAL.md
+*.local.md
+
 # Internal/working docs — not for the public repo
 CLAUDE.md
 PLAN.md
