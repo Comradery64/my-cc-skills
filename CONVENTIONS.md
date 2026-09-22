@@ -37,6 +37,41 @@ LOCAL.md
 *.local.md
 ```
 
+## What this convention does not do
+
+Read this before relying on any of it.
+
+The overlay split removes one failure mode: there is a single copy of each
+tracked document, so a public and a private version of the same prose cannot
+drift apart. It removes nothing else. Nothing here prevents machine-specific
+detail from being written into the tracked file in the first place.
+`.gitignore` matches filenames; it cannot see content.
+
+That gap matters more the less each commit is read. When most lines are written
+by an agent and no human reviews every one, a convention stated only in prose is
+not a control. It is a preference that holds until the first time something
+writes to the wrong file, and that failure is silent and public.
+
+So treat everything below as the intent, and put the enforcement somewhere that
+fails closed: a pre-push check that refuses tracked content matching a private
+pattern, and `/publish-check` before any deliberate publish. Where the content
+is genuinely confidential rather than merely machine-specific, do not rely on
+either — keep the source of truth in a private repository and publish outward
+deliberately.
+
+A pattern check catches path-shaped and name-shaped leaks. It cannot tell that a
+paragraph describes a client's internal process. Only a human decision at
+publish time catches that, which is the argument for private-first on anything
+that carries real confidentiality.
+
+## Which regime a repository gets
+
+| Repository | Regime | Why |
+|---|---|---|
+| A fork of someone else's public repo | Overlay plus push guard | Already public; private-first is not available |
+| Your own public collection, like this one | Private-first, publish deliberately | You control the boundary, so use it |
+| Anything carrying client or employer detail | Private, no public counterpart | No convention is worth that risk |
+
 ## The rule that makes overlays safe
 
 **A tracked file must stand alone.** An overlay may add specificity; it may
