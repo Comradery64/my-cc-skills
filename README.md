@@ -113,7 +113,7 @@ A CLI tool for managing on-disk Claude Code task lists outside of the built-in t
 
 ### [soc2](./skills/soc2)
 
-Reviews a project, PR, branch, diff, or the current session for SOC 2 Type 2 compliance — checks Trust Service Criteria (access, change management, availability, confidentiality, processing integrity) and reports findings by severity with concrete fixes. Includes an extended checklist section for AI-inference and GPU-control-plane workloads. Supersedes the older `/soc2` command below with a fuller control checklist and report rubric.
+Reviews a project, PR, branch, diff, or the current session for SOC 2 Type 2 compliance — checks Trust Service Criteria (access, change management, availability, confidentiality, processing integrity) and reports findings by severity with concrete fixes. Includes an extended checklist section for AI-inference and GPU-control-plane workloads.
 
 - **Quick start:** [README](./skills/soc2/README.md) · [Full Guide](./skills/soc2/SKILL.md)
 - **References:** [controls.md](./skills/soc2/references/controls.md)
@@ -129,9 +129,6 @@ Reviews the conversation so far and produces a concise briefing: what was done, 
 
 ### [/publish-check](./commands/publish-check.md)
 A pre-publish readiness review for a tool — stops before any remote create/push/publish action to catch issues first.
-
-### [/soc2](./commands/soc2.md)
-Reviews the conversation and any files touched during the session, then produces a SOC 2–oriented compliance review.
 
 ---
 
