@@ -22,6 +22,14 @@ Runs on deterministic local tools with **$0 cost** — no API calls. Ground-trut
 - **Quick start:** [README](./skills/cc-token-audit/README.md) · [Full Guide](./skills/cc-token-audit/SKILL.md)
 - **Scripts:** [baseline.py](./skills/cc-token-audit/scripts/) — Phase 1+2 baseline + tool-fit analysis
 
+### [gyb-archive-to-group](./skills/gyb-archive-to-group)
+
+Offboard a Google Workspace user (or free up a shared mailbox address) by backing up their Gmail with GYB, renaming the account, creating a Google Group at the freed address, restoring the mail into the group's archive, then suspending the old account — without losing mail or paying for a dormant seat.
+
+- **Quick start:** [README](./skills/gyb-archive-to-group/README.md) · [Full Guide](./skills/gyb-archive-to-group/SKILL.md)
+- **References:** [First-time setup](./skills/gyb-archive-to-group/references/project-setup.md) · [Troubleshooting](./skills/gyb-archive-to-group/references/troubleshooting.md)
+- **Scripts:** [verify_backup.sh](./skills/gyb-archive-to-group/scripts/verify_backup.sh) — reconciles a backup's on-disk files against its message DB
+
 ### [sso-dependency-audit](./skills/sso-dependency-audit)
 
 Audits which third-party services are tied to a Google Workspace account's identity via SAML SSO or "Sign in with Google" OAuth, and checks whether each has a non-Google fallback login — before changing how that account authenticates (converting a shared mailbox to a Google Group, deprovisioning, enforcing a new IdP, killing a shared password, etc.). Strictly read-only — gathers evidence via GAM7, never mutates anything.
