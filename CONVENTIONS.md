@@ -24,8 +24,8 @@ is gitignored everywhere.
 ```text
 research/trap-build/README.md   tracked   "a headless browser CLI that exits
                                            nonzero on a failed assertion"
-research/trap-build/LOCAL.md    ignored   "use dev-browser at ~/Library/pnpm/bin,
-                                           QuickJS sandbox, daemon keeps state"
+research/trap-build/LOCAL.md    ignored   "use the local browser CLI; it runs
+                                           scripts in a sandbox and keeps state"
 ```
 
 Add both patterns to every repository's ignore file:
@@ -106,7 +106,7 @@ git grep -n "/Users/" -- . ':!*.local.md' ':!LOCAL.md'
 ## The push guard
 
 `hooks/pre-push` refuses a push that adds a `/Users/<name>/` path, a
-`<!-- local:start -->` fence, or a tracked `LOCAL.md` / `*.local.md`. Install it
+HTML-comment fence opened with `local:start`, or a tracked `LOCAL.md` / `*.local.md`. Install it
 once for the whole machine:
 
 ```bash

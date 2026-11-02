@@ -17,8 +17,8 @@ check() { # name expected_exit
   else fail=$((fail+1)); echo "FAIL $name (exit $got, wanted $want)"; fi
 }
 
-git init -q --bare "$WORK/remote"
-git init -q "$WORK/local"
+git init -q --bare --template= "$WORK/remote"
+git init -q --template= "$WORK/local"
 cd "$WORK/local"
 git config user.email t@example.invalid; git config user.name t
 git remote add origin "file://$WORK/remote"
@@ -32,12 +32,12 @@ echo "clean push" > note.md
 git add note.md && git commit -qm "clean"
 check "a clean push is allowed" 0
 
-printf 'run /Users/someone/bin/tool\n' >> README.md
+printf 'run /%s/someone/bin/tool\n' Users >> README.md
 git add README.md && git commit -qm "leak a home path"
 check "an added /Users/ path is blocked" 1
 
 git reset -q --hard "$REMOTE_SHA"
-printf '<!-- local:start -->\nmachine notes\n' > README.md
+printf '<!-- %s -->\nmachine notes\n' local:start > README.md
 git add README.md && git commit -qm "leak a local fence"
 check "an added local fence is blocked" 1
 
@@ -47,7 +47,7 @@ git add -f LOCAL.md && git commit -qm "commit an overlay file"
 check "a committed LOCAL.md is blocked" 1
 
 git reset -q --hard "$REMOTE_SHA"
-printf 'run /Users/someone/bin/tool\n' >> README.md
+printf 'run /%s/someone/bin/tool\n' Users >> README.md
 git add README.md && git commit -qm "leak, but disabled"
 git config guard.disable true
 check "an explicit per-repo opt-out is honored" 0
